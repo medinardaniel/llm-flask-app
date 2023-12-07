@@ -1,18 +1,27 @@
-from flask import Flask, request, jsonify
+from flask import Flask, send_from_directory, jsonify, request
 from flask_cors import CORS
+import os
 from openai import OpenAI
 from dotenv import load_dotenv
 
 # Housekeeping
+app = Flask(__name__, static_folder='frontend/build')
+CORS(app, origins='http://localhost:4000')
 load_dotenv()
-app = Flask(__name__)
-CORS(app)
-client = OpenAI() # gets api key from .env file
+client = OpenAI()  # gets api key from .env file
 
 # Function to read text from a Markdown file and return it as a string
 def read_markdown_file(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         return file.read()
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -55,4 +64,4 @@ def chat():
     return jsonify({"reply": reply})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
