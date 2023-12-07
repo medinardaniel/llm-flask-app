@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  backend:
+    build: 
+      context: ../
+      dockerfile: .devcontainer/Dockerfile.backend
+    ports:
+      - "4000:5000"  # Map the port for your Flask app
+
+  frontend:
+    build: 
+      context: ../
+      dockerfile: .devcontainer/Dockerfile.frontend
+    ports:
+      - "3000:3000"  # Map the port for your frontend
+    depends_on:
+      - backend

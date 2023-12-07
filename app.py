@@ -1,12 +1,12 @@
-from flask import Flask, send_from_directory, jsonify, request
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
 
 # Housekeeping
-app = Flask(__name__, static_folder='frontend/build')
-CORS(app, origins='http://localhost:4000')
+app = Flask(__name__)
+CORS(app, supports_credentials=True)
 load_dotenv()
 client = OpenAI()  # gets api key from .env file
 
@@ -14,14 +14,6 @@ client = OpenAI()  # gets api key from .env file
 def read_markdown_file(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         return file.read()
-
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve(path):
-    if path != "" and os.path.exists(app.static_folder + '/' + path):
-        return send_from_directory(app.static_folder, path)
-    else:
-        return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/chat', methods=['POST'])
 def chat():
